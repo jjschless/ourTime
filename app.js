@@ -3,7 +3,7 @@ const express = require('express'),
       bodyParser = require('body-parser'),
       mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/yelp_camp_v3', {
+mongoose.connect('mongodb://localhost/ourTime_v1', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
@@ -34,18 +34,24 @@ app.use(express.static(__dirname + '/public'));
 
 //setting up middleware for every route that
 //will pass in the user data
-app.use(function (req, res, next){
-  res.locals.currentUser = req.user;
-  // res.locals.error = req.flash('error');
-  // res.locals.success = req.flash('success');
-  // next();
-});
+// app.use(function (req, res, next){
+//   res.locals.currentUser = req.user;
+//   res.locals.error = req.flash('error');
+//   res.locals.success = req.flash('success');
+//   next();
+// });
 
 //==============
 // Routes
 //==============
+app.get('/', function(req, res){
+  res.render('index');
+});
 
+// app.get('/index', function(req, res){
+//   res.render('index');
+// });
 
 app.listen(3000, function(){
-  console.log('ourTime online')
+  console.log('ourTime online');
 });
