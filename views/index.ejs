@@ -8,8 +8,11 @@
 <!-- client dropdown -->
 <!-- job or p.o. # -->
 
-<form class="timeclock">
-
+<form class="timeclock" action="/punch-clock" method="POST">
+<input type="text" name="ourTime[inOut]" placeholder="true of clock in">
+<input type="text" name="ourTime[clientInfo]" placeholder="client info">
+<input type="text" name="ourTime[jobInfo]" placeholder="job info">
+<input type="submit">
 </form>
 <!-- show stats for today -->
 

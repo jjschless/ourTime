@@ -16,8 +16,17 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 // app.use(methodOverride('_method'));
 // app.use(flash());
-//wipe database and seed campground
 // seedDB();
+
+const punchSchema = new mongoose.Schema({
+  inOut: Boolean,
+  clientInfo: String,
+  jobInfo: String,
+  clockTime: Date
+});
+
+const PunchTime = mongoose.model('Punch', punchSchema);
+
 
 //passport config
 //set up the session
@@ -48,6 +57,33 @@ app.get('/', function(req, res){
   res.render('index');
 });
 
+app.post('/punch-clock', function(req, res){
+  
+  console.log(req.body);
+  console.log(req.body.ourTime);
+  let inOutV = req.body.ourTime.inOut;
+  let clientInfoV = req.body.ourTime.clientInfo;
+  let jobInfoV = req.body.ourTime.jobInfo;
+  let clockTimeV = Date.now();
+  let newPunch = {
+    inOut: inOutV,
+    clientInfo: clientInfoV,
+    jobInfo: jobInfoV,
+    clockTime: clockTimeV
+  }
+
+  PunchTime.create(newPunch, function(err, newClock){
+    console.log('Create done');
+    if(err){
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.redirect('/');
+      console.log(newClock);
+      console.log('create success');
+    }
+  })
+});
 // app.get('/index', function(req, res){
 //   res.render('index');
 // });
