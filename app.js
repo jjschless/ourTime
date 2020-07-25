@@ -19,14 +19,17 @@ app.use(express.static(__dirname + '/public'));
 // seedDB();
 
 const punchSchema = new mongoose.Schema({
-  inOut: Boolean,
+  username: {type: String, default: 'JJ'},
+  inOut: String,
   clientInfo: String,
   jobInfo: String,
-  clockTime: Date
+  clockIn: Date,
+  clockOut: Date,
+  updates: {type: Array}
 });
 
-const PunchTime = mongoose.model('Punch', punchSchema);
 
+const PunchTime = mongoose.model('Punch', punchSchema);
 
 //passport config
 //set up the session
@@ -53,25 +56,18 @@ const PunchTime = mongoose.model('Punch', punchSchema);
 //==============
 // Routes
 //==============
-app.get('/', function(req, res){
-  res.render('index');
+app.get('/', async function (req, res){
+  var punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
+  console.log(punchArr);
+  res.render('index', { punchArr : punchArr});
 });
 
-app.post('/punch-clock', function(req, res){
-  
-  console.log(req.body);
-  console.log(req.body.ourTime);
-  let inOutV = req.body.ourTime.inOut;
-  let clientInfoV = req.body.ourTime.clientInfo;
-  let jobInfoV = req.body.ourTime.jobInfo;
-  let clockTimeV = Date.now();
+app.post('/punch-in', function(req, res){
   let newPunch = {
-    inOut: inOutV,
-    clientInfo: clientInfoV,
-    jobInfo: jobInfoV,
-    clockTime: clockTimeV
+    clientInfo: req.body.ourTime.clientInfo,
+    jobInfo: req.body.ourTime.jobInfo,
+    clockIn: Date.now()
   }
-
   PunchTime.create(newPunch, function(err, newClock){
     console.log('Create done');
     if(err){
@@ -82,11 +78,44 @@ app.post('/punch-clock', function(req, res){
       console.log(newClock);
       console.log('create success');
     }
-  })
+  });
 });
+  
+app.post('/punch-out', function(req, res){
+  console.log(req.body.ourTime.Id);
+  PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: Date.now()}, function(err, updateClock){
+    console.log('Update done');
+    if(err){
+      console.log('error with update');
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.redirect('/');
+      console.log(updateClock);
+      console.log('update success');
+    }
+  });
+});
+
+  // console.log();
+  // let inOutV = req.body.ourTime.inOut;
+  // let clientInfoV = req.body.ourTime.clientInfo;
+  // let jobInfoV = req.body.ourTime.jobInfo;
+  // let clockTimeV = Date.now();
+  
+  // let newPunch = {
+  //   inOut: inOutV,
+  //   clientInfo: clientInfoV,
+  //   jobInfo: jobInfoV,
+  //   clockTime: clockTimeV
+  // }
+
+  
+
 // app.get('/index', function(req, res){
 //   res.render('index');
 // });
+
 
 app.listen(3000, function(){
   console.log('ourTime online');

@@ -7,9 +7,8 @@
 <!-- business or personal radio selector -->
 <!-- client dropdown -->
 <!-- job or p.o. # -->
-
-<form class="timeclock" action="/punch-clock" method="POST">
-<input type="text" name="ourTime[inOut]" placeholder="true of clock in">
+<p>Punch in</p>
+<form class="timeclock" action="/punch-in" method="POST">
 <input type="text" name="ourTime[clientInfo]" placeholder="client info">
 <input type="text" name="ourTime[jobInfo]" placeholder="job info">
 <input type="submit">
@@ -17,7 +16,32 @@
 <!-- show stats for today -->
 
 <!-- change display settings -->
-
+<table>
+  <tr>
+    <th>Username</th>
+    <th>Client</th>
+    <th>Job</th>
+    <th>Time In</th>
+    <th>Time Out</th>
+  </tr>
+  <% punchArr.forEach(punch => { %>
+    <tr>
+      <td><%=punch.username%></td>
+      <td><%=punch.clientInfo%></td>
+      <td><%=punch.jobInfo%></td>
+      <td><%=punch.clockIn%></td>
+      <td><%=punch.clockOut%></td>
+      <td><%=punch.inOut%></td>
+      <td>
+        <% if(punch.clockOut) { %>
+          <%= (((punch.clockOut - punch.clockIn)/1000)/3600).toFixed(2) %> Hours
+        <% } else { %>  
+        <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
+        <% } %>
+      </td>
+    </tr>
+  <%})%>
+</table>
 <!-- display week month or such determined by settings -->
 
 
