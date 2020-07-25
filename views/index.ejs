@@ -1,6 +1,7 @@
 <%-include('partials/header')%>
 
 <h1>Index Page</h1>
+<h2>Today is: <%= today %> </h2>
 <!-- add time -->
 <!-- date and time autofill -->
 <!-- if clocked in / clocked out -->
@@ -34,7 +35,7 @@
       <td><%=punch.inOut%></td>
       <td>
         <% if(punch.clockOut) { %>
-          <%= (((punch.clockOut - punch.clockIn)/1000)/3600).toFixed(2) %> Hours
+          <%= ((punch.earnedHours/1000)/3600).toFixed(2) %> Hours
         <% } else { %>  
         <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
         <% } %>

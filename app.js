@@ -1,7 +1,10 @@
 const express = require('express'),
       app = express(),
       bodyParser = require('body-parser'),
-      mongoose = require('mongoose');
+      mongoose = require('mongoose'),
+      moment = require('moment'),
+      PunchTime = require('./models/punch'),
+      seedb = require('./models/seedb');
 
 mongoose.connect('mongodb://localhost/ourTime_v1', {
   useNewUrlParser: true,
@@ -16,20 +19,8 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 // app.use(methodOverride('_method'));
 // app.use(flash());
-// seedDB();
+seedb();
 
-const punchSchema = new mongoose.Schema({
-  username: {type: String, default: 'JJ'},
-  inOut: String,
-  clientInfo: String,
-  jobInfo: String,
-  clockIn: Date,
-  clockOut: Date,
-  updates: {type: Array}
-});
-
-
-const PunchTime = mongoose.model('Punch', punchSchema);
 
 //passport config
 //set up the session
@@ -57,9 +48,26 @@ const PunchTime = mongoose.model('Punch', punchSchema);
 // Routes
 //==============
 app.get('/', async function (req, res){
-  var punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
-  console.log(punchArr);
-  res.render('index', { punchArr : punchArr});
+  let punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
+  let shiftArr = [];
+  for(var i in punchArr){
+    let shiftObj = {};
+    if (punchArr[i].clockIn){
+      shiftObj.clockIn = dateFormat(punchArr[i].clockIn, 'short');
+    }  
+    if(punchArr[i].clockOut){
+      shiftObj.clockOut = dateFormat(punchArr[i].clockOut, 'short');
+    }
+    shiftObj.username = punchArr[i].username;
+    shiftObj.clientInfo = punchArr[i].clientInfo;
+    shiftObj.jobInfo = punchArr[i].jobInfo;
+    shiftObj._id = punchArr[i]._id;
+    shiftObj.earnedHours = punchArr[i].earnedHours;
+    shiftArr.push(shiftObj);
+  }
+  todaySend = dateFormat('', 'title');
+  console.log(shiftArr);
+  res.render('index', { punchArr : shiftArr, today : todaySend });
 });
 
 app.post('/punch-in', function(req, res){
@@ -81,9 +89,11 @@ app.post('/punch-in', function(req, res){
   });
 });
   
-app.post('/punch-out', function(req, res){
+app.post('/punch-out', async function(req, res){
   console.log(req.body.ourTime.Id);
-  PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: Date.now()}, function(err, updateClock){
+  let workingCopy = await PunchTime.findById(req.body.ourTime.Id);
+  let sumHours = (Date.now() - workingCopy.clockIn) 
+  await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: Date.now(), earnedHours: sumHours}, function(err, updateClock){
     console.log('Update done');
     if(err){
       console.log('error with update');
@@ -115,6 +125,69 @@ app.post('/punch-out', function(req, res){
 // app.get('/index', function(req, res){
 //   res.render('index');
 // });
+
+function dateFormat (date, type){
+  // type is format style: long, short, title
+  // if no date is supplied '' then one will be created
+  if(date === ''){
+    date = new Date();
+  } 
+  const monthsFull = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ]
+
+  const monthsShort = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ]
+
+  const daysShort = [
+    'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+  ]
+
+  const daysLong = [
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+  ]
+
+  let year = date.getFullYear(),
+      monthIndex = date.getMonth(),
+      day = date.getDate(),
+      weekDayIndex = date.getDay(),
+      hours = date.getHours(),
+      minutes = date.getMinutes();
+
+  if(type === 'short'){
+    var dateString = `${daysShort[weekDayIndex]}, ${monthsShort[monthIndex]} ${day} ${hours}:${minutes}`;
+  } else if (type === 'long'){
+    var dateString = `${daysLong[weekDayIndex]}, ${monthsFull[monthIndex]} ${day} ${hours}:${minutes}`;
+  } else if (type === 'title'){
+    var dateString = `${daysLong[weekDayIndex]}, ${monthsFull[monthIndex]} ${day} ${year}`;
+  }
+  return dateString;
+}
+
+
 
 
 app.listen(3000, function(){
