@@ -9,7 +9,7 @@
 <!-- client dropdown -->
 <!-- job or p.o. # -->
 <p>Punch in</p>
-<form class="timeclock" action="/punch-in" method="POST">
+<form class="timeclock" action="/punch" method="POST">
 <input type="text" name="ourTime[clientInfo]" placeholder="client info">
 <input type="text" name="ourTime[jobInfo]" placeholder="job info">
 <input type="submit">
@@ -19,26 +19,24 @@
 <!-- change display settings -->
 <table>
   <tr>
-    <th>Username</th>
     <th>Client</th>
     <th>Job</th>
-    <th>Time In</th>
-    <th>Time Out</th>
+    <th>Time</th>
+    <th>Flag</th>
+    <th>Action</th>
   </tr>
   <% punchArr.forEach(punch => { %>
     <tr>
-      <td><%=punch.username%></td>
       <td><%=punch.clientInfo%></td>
       <td><%=punch.jobInfo%></td>
-      <td><%=punch.clockIn%></td>
-      <td><%=punch.clockOut%></td>
-      <td><%=punch.inOut%></td>
+      <td><%=punch.displayClock%></td>
+      <td><%=punch.flag%></td>
       <td>
-        <% if(punch.clockOut) { %>
-          <%= ((punch.earnedHours/1000)/3600).toFixed(2) %> Hours
-        <% } else { %>  
-        <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
-        <% } %>
+        <% if(punch.flag === 'in') { %> 
+        <form action='/punch' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
+        <% } else { %>
+          X
+        <% } %>  
       </td>
     </tr>
   <%})%>

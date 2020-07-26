@@ -19,7 +19,9 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 // app.use(methodOverride('_method'));
 // app.use(flash());
-seedb();
+
+
+// seedb();
 
 
 //passport config
@@ -49,63 +51,74 @@ seedb();
 //==============
 app.get('/', async function (req, res){
   let punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
-  let shiftArr = [];
-  for(var i in punchArr){
-    let shiftObj = {};
-    if (punchArr[i].clockIn){
-      shiftObj.clockIn = dateFormat(punchArr[i].clockIn, 'short');
-    }  
-    if(punchArr[i].clockOut){
-      shiftObj.clockOut = dateFormat(punchArr[i].clockOut, 'short');
-    }
-    shiftObj.username = punchArr[i].username;
-    shiftObj.clientInfo = punchArr[i].clientInfo;
-    shiftObj.jobInfo = punchArr[i].jobInfo;
-    shiftObj._id = punchArr[i]._id;
-    shiftObj.earnedHours = punchArr[i].earnedHours;
-    shiftArr.push(shiftObj);
-  }
+  shiftArr = displayPunch(punchArr);
   todaySend = dateFormat('', 'title');
   console.log(shiftArr);
   res.render('index', { punchArr : shiftArr, today : todaySend });
 });
 
-app.post('/punch-in', function(req, res){
-  let newPunch = {
-    clientInfo: req.body.ourTime.clientInfo,
-    jobInfo: req.body.ourTime.jobInfo,
-    clockIn: Date.now()
+app.post('/punch', async function(req, res){
+  try{
+    if(!req.body.ourTime.Id){
+      let newPunch = {
+        clientInfo: req.body.ourTime.clientInfo,
+        jobInfo: req.body.ourTime.jobInfo,
+        clock: Date.now(),
+        flag: 'in',
+        daySlot: dateFormat('', 'slot')
+      }
+      await PunchTime.create(newPunch, function(err, newClock){
+        console.log('Create done');
+        if(err){
+          console.log(err);
+          res.redirect('/');
+        } else {
+          res.redirect('/');
+          console.log(newClock);
+          console.log('create success');
+        }
+      });
+    } else if (req.body.ourTime.Id){
+      let workingCopy = await PunchTime.findById(req.body.ourTime.Id);
+      let newPunch = {
+        clientInfo: workingCopy.clientInfo,
+        jobInfo: workingCopy.jobInfo,
+        clock: Date.now(),
+        flag: 'out',
+        daySlot: dateFormat('', 'slot'),
+        ref: req.body.ourTime.Id
+      }
+      await PunchTime.create(newPunch, function(err, newPunch){
+        console.log('Create done');
+        if(err){
+          console.log(err);
+          res.redirect('/');
+        } else {
+          res.redirect('/');
+          console.log(newPunch);
+          console.log('create success');
+        }
+      });
+      await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {ref: newPunch._id}, function(err, updateClock){
+        console.log('Update done');
+        if(err){
+          console.log('error with update');
+          console.log(err);
+          res.redirect('/');
+        } else {
+          res.redirect('/');
+          console.log(updateClock);
+          console.log('update success');
+        }
+      });
+    } else {
+      res.redirect('/');
+    }
+  } catch(err) {
+  console.log(err);
   }
-  PunchTime.create(newPunch, function(err, newClock){
-    console.log('Create done');
-    if(err){
-      console.log(err);
-      res.redirect('/');
-    } else {
-      res.redirect('/');
-      console.log(newClock);
-      console.log('create success');
-    }
-  });
 });
-  
-app.post('/punch-out', async function(req, res){
-  console.log(req.body.ourTime.Id);
-  let workingCopy = await PunchTime.findById(req.body.ourTime.Id);
-  let sumHours = (Date.now() - workingCopy.clockIn) 
-  await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: Date.now(), earnedHours: sumHours}, function(err, updateClock){
-    console.log('Update done');
-    if(err){
-      console.log('error with update');
-      console.log(err);
-      res.redirect('/');
-    } else {
-      res.redirect('/');
-      console.log(updateClock);
-      console.log('update success');
-    }
-  });
-});
+
 
   // console.log();
   // let inOutV = req.body.ourTime.inOut;
@@ -125,13 +138,31 @@ app.post('/punch-out', async function(req, res){
 // app.get('/index', function(req, res){
 //   res.render('index');
 // });
+function displayPunch(punchArr){
+  let shiftArr = [];
+  for(var i in punchArr){
+    let shiftObj = {};
+    shiftObj.displayClock = dateFormat((punchArr[i].clock), 'short');
+    shiftObj.username = punchArr[i].username;
+    shiftObj.clientInfo = punchArr[i].clientInfo;
+    shiftObj.jobInfo = punchArr[i].jobInfo;
+    shiftObj.flag = punchArr[i].flag;
+    shiftObj._id = punchArr[i]._id;
+    shiftArr.push(shiftObj);
+  }
+  return shiftArr;
+}
+
+
+
 
 function dateFormat (date, type){
-  // type is format style: long, short, title
+  // type is format style: long, short, title, slot
   // if no date is supplied '' then one will be created
   if(date === ''){
     date = new Date();
   } 
+  
   const monthsFull = [
     'January',
     'February',
@@ -183,7 +214,10 @@ function dateFormat (date, type){
     var dateString = `${daysLong[weekDayIndex]}, ${monthsFull[monthIndex]} ${day} ${hours}:${minutes}`;
   } else if (type === 'title'){
     var dateString = `${daysLong[weekDayIndex]}, ${monthsFull[monthIndex]} ${day} ${year}`;
+  } else if (type === 'slot'){
+    var dateString = `${monthIndex + 1}${day}${year}`;
   }
+  console.log(dateString);
   return dateString;
 }
 
