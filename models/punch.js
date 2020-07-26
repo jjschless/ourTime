@@ -4,13 +4,10 @@ const punchSchema = new mongoose.Schema({
   username: {type: String, default: 'JJ'},
   clientInfo: String,
   jobInfo: String,
-  clock: Date,
-  daySlot: Number,
-  flag: String,
-  pair: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Punch'
-  }
+  clockIn: Date,
+  clockOut: Date,
+  earnedHours: Number,
+  updates: {type: Array}
 });
 
 

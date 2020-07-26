@@ -21,7 +21,7 @@ app.use(express.static(__dirname + '/public'));
 // app.use(flash());
 
 
-// seedb();
+seedb();
 
 
 //passport config
@@ -49,76 +49,66 @@ app.use(express.static(__dirname + '/public'));
 //==============
 // Routes
 //==============
+
 app.get('/', async function (req, res){
-  let punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
-  shiftArr = displayPunch(punchArr);
-  todaySend = dateFormat('', 'title');
+  var punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
+  let shiftArr = [];
+  for(var i in punchArr){
+    let shiftObj = {};
+    if (punchArr[i].clockIn){
+      shiftObj.clockIn = dateFormat(punchArr[i].clockIn, 'short');
+    }  
+    if(punchArr[i].clockOut){
+      shiftObj.clockOut = dateFormat(punchArr[i].clockOut, 'short');
+    }
+    shiftObj.username = punchArr[i].username;
+    shiftObj.clientInfo = punchArr[i].clientInfo;
+    shiftObj.jobInfo = punchArr[i].jobInfo;
+    shiftObj._id = punchArr[i]._id;
+    shiftObj.earnedHours = punchArr[i].earnedHours;
+    shiftArr.push(shiftObj);
+  }
+  let todaySend = dateFormat('', 'title');
   console.log(shiftArr);
   res.render('index', { punchArr : shiftArr, today : todaySend });
 });
 
-app.post('/punch', async function(req, res){
-  try{
-    if(!req.body.ourTime.Id){
-      let newPunch = {
-        clientInfo: req.body.ourTime.clientInfo,
-        jobInfo: req.body.ourTime.jobInfo,
-        clock: Date.now(),
-        flag: 'in',
-        daySlot: dateFormat('', 'slot')
-      }
-      await PunchTime.create(newPunch, function(err, newClock){
-        console.log('Create done');
-        if(err){
-          console.log(err);
-          res.redirect('/');
-        } else {
-          res.redirect('/');
-          console.log(newClock);
-          console.log('create success');
-        }
-      });
-    } else if (req.body.ourTime.Id){
-      let workingCopy = await PunchTime.findById(req.body.ourTime.Id);
-      let newPunch = {
-        clientInfo: workingCopy.clientInfo,
-        jobInfo: workingCopy.jobInfo,
-        clock: Date.now(),
-        flag: 'out',
-        daySlot: dateFormat('', 'slot'),
-        ref: req.body.ourTime.Id
-      }
-      await PunchTime.create(newPunch, function(err, newPunch){
-        console.log('Create done');
-        if(err){
-          console.log(err);
-          res.redirect('/');
-        } else {
-          res.redirect('/');
-          console.log(newPunch);
-          console.log('create success');
-        }
-      });
-      await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {ref: newPunch._id}, function(err, updateClock){
-        console.log('Update done');
-        if(err){
-          console.log('error with update');
-          console.log(err);
-          res.redirect('/');
-        } else {
-          res.redirect('/');
-          console.log(updateClock);
-          console.log('update success');
-        }
-      });
+app.post('/punch-in', function(req, res){
+  let newPunch = {
+    clientInfo: req.body.ourTime.clientInfo,
+    jobInfo: req.body.ourTime.jobInfo,
+    clockIn: Date.now()
+  }
+  PunchTime.create(newPunch, function(err, newClock){
+    console.log('Create done');
+    if(err){
+      console.log(err);
+      res.redirect('/');
     } else {
       res.redirect('/');
+      console.log(newClock);
+      console.log('create success');
     }
-  } catch(err) {
-  console.log(err);
-  }
-});
+   });
+ });
 
+app.post('/punch-out', async function(req, res){
+  var workingCopy = await PunchTime.findById(req.body.ourTime.Id);
+  console.log(workingCopy);
+  var sumHours = (Date.now() - workingCopy.clockIn) 
+  await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: Date.now(), earnedHours: sumHours}, function(err, updateClock){
+    console.log('Update done');
+    if(err){
+      console.log('error with update');
+     console.log(err);
+     res.redirect('/');
+   } else {
+     res.redirect('/');
+     console.log(updateClock);
+     console.log('update success');
+   }
+ });
+});
 
   // console.log();
   // let inOutV = req.body.ourTime.inOut;
@@ -208,6 +198,10 @@ function dateFormat (date, type){
       hours = date.getHours(),
       minutes = date.getMinutes();
 
+  if(minutes >= 0 && minutes <= 9){
+    minutes = ('0' + minutes).slice(-2);
+  }
+
   if(type === 'short'){
     var dateString = `${daysShort[weekDayIndex]}, ${monthsShort[monthIndex]} ${day} ${hours}:${minutes}`;
   } else if (type === 'long'){
@@ -215,6 +209,9 @@ function dateFormat (date, type){
   } else if (type === 'title'){
     var dateString = `${daysLong[weekDayIndex]}, ${monthsFull[monthIndex]} ${day} ${year}`;
   } else if (type === 'slot'){
+    if(day >= 0 && day <= 9){
+      day = ( '0' + day ).slice(-2);
+    }
     var dateString = `${monthIndex + 1}${day}${year}`;
   }
   console.log(dateString);
