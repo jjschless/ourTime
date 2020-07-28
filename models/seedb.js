@@ -6,6 +6,7 @@ const mongoose = require('mongoose'),
 
 seeds = [
   {
+    daySlot: 7252020,
     clientInfo: 'MicroSoft',
     jobInfo: 'Site Redesign',
     clockIn: (1595708011265-3600000),
@@ -14,6 +15,7 @@ seeds = [
     updates: []
   },
   {
+    daySlot: 7252020,
     clientInfo: 'MicroSoft',
     jobInfo: 'Site Redesign Part 2',
     clockIn: (1595708011265-13600000),
@@ -22,6 +24,7 @@ seeds = [
     updates: []
   },
   {
+    daySlot: 7242020,
     clientInfo: 'Amazon',
     jobInfo: 'Build a widget',
     clockIn: (1595708011265-83600000),
@@ -30,6 +33,7 @@ seeds = [
     updates: []
   },
   {
+    daySlot: 7232020,
     clientInfo: 'Spotify',
     jobInfo: 'Consulting',
     clockIn: (1595708011265-183600000),
@@ -38,6 +42,7 @@ seeds = [
     updates: []
   },
   {
+    daySlot: 7222020,
     clientInfo: 'Spotify',
     jobInfo: 'Consulting',
     clockIn: (1595708011265-283600000),

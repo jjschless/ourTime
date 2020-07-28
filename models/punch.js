@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const punchSchema = new mongoose.Schema({
   username: {type: String, default: 'JJ'},
+  daySlot: Number,
   clientInfo: String,
   jobInfo: String,
   clockIn: Date,
