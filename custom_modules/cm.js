@@ -1,4 +1,50 @@
 var cm = { 
+  monthsFull: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ], 
+  monthsShort: [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ], 
+  daysShort: [
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat'
+  ], 
+  daysLong: [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday'
+  ], 
   dateFormat: function (date, type){
   // type is format style: long, short, title, slot
 
@@ -6,59 +52,7 @@ var cm = {
   
     if(date === ''){
       date = new Date();
-    } 
-    
-    // Create arrays of string names
-    const monthsFull = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ]
-
-    const monthsShort = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ]
-
-    const daysShort = [
-      'Sun',
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat'
-    ]
-
-    const daysLong = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday'
-    ]
-
+    }
     // get index values based on the date
     let year = date.getFullYear(),
         monthIndex = date.getMonth(),
@@ -84,11 +78,11 @@ var cm = {
       
     // 4 variations of output
     if(type === 'short'){
-      var dateString = `${daysShort[weekDayIndex]}, ${monthsShort[monthIndex]} ${day} ${hours}:${minutes}`;
+      var dateString = `${this.daysShort[weekDayIndex]}, ${this.monthsShort[monthIndex]} ${day} ${hours}:${minutes}`;
     } else if (type === 'long'){
-      var dateString = `${daysLong[weekDayIndex]}, ${monthsFull[monthIndex]} ${day}${ordinalSuffix} ${hours}:${minutes}`;
+      var dateString = `${this.daysLong[weekDayIndex]}, ${this.monthsFull[monthIndex]} ${day}${ordinalSuffix} ${hours}:${minutes}`;
     } else if (type === 'title'){
-      var dateString = `${daysLong[weekDayIndex]}, ${monthsFull[monthIndex]} ${day}${ordinalSuffix} ${year}`;
+      var dateString = `${this.daysLong[weekDayIndex]}, ${this.monthsFull[monthIndex]} ${day}${ordinalSuffix} ${year}`;
     } else if (type === 'slot'){
       if(day >= 0 && day <= 9){
         day = ( '0' + day ).slice(-2);

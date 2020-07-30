@@ -22,7 +22,7 @@ app.use(express.static(__dirname + '/public'));
 // app.use(flash());
 
 
-seedb();
+// seedb();
 
 
 //passport config
@@ -55,8 +55,10 @@ app.get('/', async function (req, res){
   var punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
   let shiftArr = cm.displayPunch(punchArr);
   let todaySend = cm.dateFormat('', 'title');
-  console.log(shiftArr);
-  res.render('index', { punchArr : shiftArr, today : todaySend });
+  let todaySlotSend = cm.dateFormat('', 'slot');
+  console.log(todaySlotSend);
+  // console.log(shiftArr);
+  res.render('index', { punchArr : shiftArr, today : todaySend, todaySlot: todaySlotSend });
 });
 
 app.post('/punch-in', function(req, res){

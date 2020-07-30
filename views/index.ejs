@@ -15,11 +15,16 @@
 <input type="submit">
 </form>
 <!-- show stats for today -->
+<p>Today
+<% var aQuery = (el) => el.daySlot == todaySlot %>
+ <%= ((punchArr[punchArr.findIndex(aQuery)].earnedHours/1000)/3600).toFixed(2) %>
+hours worked
+</p>
 
 <!-- change display settings -->
 <table>
   <tr>
-    <th>Username</th>
+    <th>DaySlot</th>
     <th>Client</th>
     <th>Job</th>
     <th>Time In</th>
@@ -27,7 +32,7 @@
   </tr>
   <% punchArr.forEach(punch => { %>
     <tr>
-      <td><%=punch.username%></td>
+      <td><%=punch.daySlot%></td>
       <td><%=punch.clientInfo%></td>
       <td><%=punch.jobInfo%></td>
       <td><%=punch.clockIn%></td>

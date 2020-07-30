@@ -1,56 +1,37 @@
 const mongoose = require('mongoose'),
-      PunchTime = require('./punch');
+      PunchTime = require('./punch'),
+      cm = require('../custom_modules/cm');
 
 //seed db file
+function GenSeed(clock, clientArr, jobArr, r, i){
+  this.daySlot = (7042020 + (10000 * i));
+  this.clientInfo = clientArr[r];
+  this.jobInfo = jobArr[r];
+  this.clockIn = clock;
+  this.clockOut = (clock + 30000000);
+  this.earnedHours = 30000000;
+  this.updates = [];
+}     
 
+var seeds = []
+const clientArr = ['MicroSoft', 'Google', 'Apple', 'Spotify', 'Apple', 'Spotify', 'MicroSoft', 'Google'],
+      jobArr = ['Site Redesign', 'Consulting', 'Front End JavaScript', 'Node Refactor', 'Site Redesign', 'Consulting', 'Front End JavaScript', 'Node Refactor'];
 
-seeds = [
-  {
-    daySlot: 7252020,
-    clientInfo: 'MicroSoft',
-    jobInfo: 'Site Redesign',
-    clockIn: (1595708011265-3600000),
-    clockOut: 1595708011265,
-    earnedHours: 3600000,
-    updates: []
-  },
-  {
-    daySlot: 7252020,
-    clientInfo: 'MicroSoft',
-    jobInfo: 'Site Redesign Part 2',
-    clockIn: (1595708011265-13600000),
-    clockOut: (1595708011265-20000000),
-    earnedHours: ((1595708011265-13600000) - (1595708011265-20000000)),
-    updates: []
-  },
-  {
-    daySlot: 7242020,
-    clientInfo: 'Amazon',
-    jobInfo: 'Build a widget',
-    clockIn: (1595708011265-83600000),
-    clockOut: (1595708011265-77800000),
-    earnedHours: ((1595708011265-77800000) - (1595708011265-83600000)),
-    updates: []
-  },
-  {
-    daySlot: 7232020,
-    clientInfo: 'Spotify',
-    jobInfo: 'Consulting',
-    clockIn: (1595708011265-183600000),
-    clockOut: (1595708011265-177800000),
-    earnedHours: ((1595708011265-177800000) - (1595708011265-183600000)),
-    updates: []
-  },
-  {
-    daySlot: 7222020,
-    clientInfo: 'Spotify',
-    jobInfo: 'Consulting',
-    clockIn: (1595708011265-283600000),
-    clockOut: (1595708011265-277800000),
-    earnedHours: ((1595708011265-277800000) - (1595708011265-283600000)),
-    updates: []
+var   timeStart = (1595708011265-23600000)-(86400000*21);
+
+var r = 0;
+for(let i = 0; i < 28; i++){
+  if(r === 8){
+    r = 0;
   }
-]
+  var hold = new GenSeed(timeStart, clientArr, jobArr, r, i);
+  timeStart += 86400000;
+  seeds.push(hold);
+  console.log('seed created');
+  r += 1
+}
+console.log('Seeds ' + (seeds.length + 1));
+
 async function seedb(){
   try{
     await PunchTime.deleteMany({});
