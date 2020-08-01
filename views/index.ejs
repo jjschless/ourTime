@@ -1,7 +1,10 @@
 <%-include('partials/header')%>
 
+
 <h1>Index Page</h1>
 <h2>Today is: <%= today %> </h2>
+
+
 <!-- add time -->
 <!-- date and time autofill -->
 <!-- if clocked in / clocked out -->
@@ -17,7 +20,7 @@
 <!-- show stats for today -->
 <p>Today
 <% var aQuery = (el) => el.daySlot == todaySlot %>
- <%= ((punchArr[punchArr.findIndex(aQuery)].earnedHours/1000)/3600).toFixed(2) %>
+ <%= punchArr[punchArr.findIndex(aQuery)].earnedHours %>
 hours worked
 </p>
 
@@ -39,7 +42,7 @@ hours worked
       <td><%=punch.clockOut%></td>
       <td>
         <% if(punch.clockOut) { %>
-           <%= ((punch.earnedHours/1000)/3600).toFixed(2) %> Hours
+           <%= punch.earnedHours %> Hours
          <% } else { %>  
          <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
          <% } %>
@@ -48,6 +51,7 @@ hours worked
   <%})%>
 </table>
 <!-- display week month or such determined by settings -->
+<h3>This weeks stats</h3>
 
 
 <%-include('partials/footer')%>

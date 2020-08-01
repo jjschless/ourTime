@@ -22,9 +22,90 @@ app.use(express.static(__dirname + '/public'));
 // app.use(flash());
 
 
-// seedb();
+seedb();
+
+var weekStats = { 
+  weekStart: 'Sunday',
+  sundayPunches: [],
+  mondayPunches: [],
+  tuesdayPunches: [],
+  wednesdayPunches: [],
+  thursdayPunches: [],
+  fridayPunches: [],
+  saturdayPunches: [],
+  sundayTotal: 0,
+  mondayTotal: 0,
+  tuesdayTotal: 0,
+  wednesdayTotal: 0,
+  thursdayTotal: 0,
+  fridayTotal: 0,
+  saturdayTotal: 0,
+  weekCalc: function(arr){
+    let today = new Date;
+    let todaySlot = cm.dateFormat(today, 'slot');
+    let dayIndex = today.getDay();
+    console.log(dayIndex);
+    let aQuery = (el) => el.daySlot == todaySlot;
+    for(dayIndex; dayIndex >= 0; dayIndex--){
+      clone = arr.filter(aQuery);
+      console.log(clone);
+      if(dayIndex === 6){
+        let o = clone.length - 1
+        for(let i = 0; i <= o; i++){
+          this.saturdayPunches.push(clone[0]);
+          clone.shift();
+        }
+        todaySlot -= 10000;  
+      } else if(dayIndex === 5){
+        let o = clone.length - 1
+        for(let i = 0; i <= o; i++){
+          this.fridayPunches.push(clone[0]);
+          clone.shift();
+        }
+        todaySlot -= 10000;  
+      } else if(dayIndex === 4){
+        let o = clone.length - 1
+        for(let i = 0; i <= o; i++){
+          this.thursdayPunches.push(clone[0]);
+          clone.shift();
+        }
+        todaySlot -= 10000;  
+      } else if(dayIndex === 3){
+        let o = clone.length - 1
+        for(let i = 0; i <= o; i++){
+          this.wednesdayPunches.push(clone[0]);
+          clone.shift();
+        }
+        todaySlot -= 10000;  
+      } else if(dayIndex === 2){
+        let o = clone.length - 1
+        for(let i = 0; i <= o; i++){
+          this.tuesdayPunches.push(clone[0]);
+          clone.shift();
+        }
+        todaySlot -= 10000;  
+      } else if(dayIndex === 6){
+        let o = clone.length - 1
+        for(let i = 0; i <= o; i++){
+          this.mondayPunches.push(clone[0]);
+          clone.shift();
+        }
+        todaySlot -= 10000;  
+      } else {
+        let o = clone.length - 1
+        for(let i = 0; i <= o; i++){
+          this.saturdayPunches.push(clone[0]);
+          clone.shift();
+        } 
+      } 
+    }
+    
 
 
+  }
+  
+
+}
 //passport config
 //set up the session
 // app.use(require('express-session')({
@@ -56,8 +137,8 @@ app.get('/', async function (req, res){
   let shiftArr = cm.displayPunch(punchArr);
   let todaySend = cm.dateFormat('', 'title');
   let todaySlotSend = cm.dateFormat('', 'slot');
-  console.log(todaySlotSend);
   // console.log(shiftArr);
+  weekStats.weekCalc(punchArr);
   res.render('index', { punchArr : shiftArr, today : todaySend, todaySlot: todaySlotSend });
 });
 
@@ -84,7 +165,7 @@ app.post('/punch-in', function(req, res){
 app.post('/punch-out', async function(req, res){
   var workingCopy = await PunchTime.findById(req.body.ourTime.Id);
   console.log(workingCopy);
-  var sumHours = (Date.now() - workingCopy.clockIn) 
+  var sumHours = ((Date.now() - workingCopy.clockIn) * 0.00000028).toFixed(2) 
   await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: Date.now(), earnedHours: sumHours}, function(err, updateClock){
     console.log('Update done');
     if(err){
@@ -98,6 +179,8 @@ app.post('/punch-out', async function(req, res){
    }
  });
 });
+
+
 
 
 
