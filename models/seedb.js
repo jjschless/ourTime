@@ -1,5 +1,6 @@
 const mongoose = require('mongoose'),
       PunchTime = require('./punch'),
+      moment = require('moment'),
       cm = require('../custom_modules/cm');
 
 
@@ -10,7 +11,7 @@ randomNum = function(range){
 
       //seed db file
 function GenSeed(clock, clientArr, jobArr, i){
-  this.daySlot = (7042020 + (10000 * i));
+  this.daySlot = (186 + i);
   this.clientInfo = clientArr[randomNum(3)];
   this.jobInfo = jobArr[randomNum(3)];
   let c1 = clock + randomNum(1000000);

@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 var cm = { 
   monthsFull: [
     'January',
@@ -96,10 +98,10 @@ var cm = {
     for(var i in punchArr){
       let shiftObj = {};
       if (punchArr[i].clockIn){
-        shiftObj.clockIn = this.dateFormat(punchArr[i].clockIn, 'short');
+        shiftObj.clockIn = moment(punchArr[i].clockIn).format('ddd MMM Do hh:mm a');
       }  
       if(punchArr[i].clockOut){
-        shiftObj.clockOut = this.dateFormat(punchArr[i].clockOut, 'short');
+        shiftObj.clockOut = moment(punchArr[i].clockOut).format('ddd MMM Do hh:mm a');
       }
       shiftObj.username = punchArr[i].username;
       shiftObj.daySlot = punchArr[i].daySlot;
@@ -109,7 +111,7 @@ var cm = {
       shiftObj.earnedHours = punchArr[i].earnedHours;
       shiftArr.push(shiftObj);
     }
-    return shiftArr;
+    return shiftArr.reverse();
   }
 }
 module.exports = cm;

@@ -2,8 +2,8 @@
 
 
 <h1>Index Page</h1>
-<h2>Today is: <%= today %> </h2>
 
+Today is <%= todaySend.title %>
 
 <!-- add time -->
 <!-- date and time autofill -->
@@ -18,40 +18,90 @@
 <input type="submit">
 </form>
 <!-- show stats for today -->
-<p>Today
-<% var aQuery = (el) => el.daySlot == todaySlot %>
- <%= punchArr[punchArr.findIndex(aQuery)].earnedHours %>
-hours worked
-</p>
+
 
 <!-- change display settings -->
 <table>
-  <tr>
-    <th>DaySlot</th>
-    <th>Client</th>
-    <th>Job</th>
-    <th>Time In</th>
-    <th>Time Out</th>
-  </tr>
-  <% punchArr.forEach(punch => { %>
+  <thead>
     <tr>
-      <td><%=punch.daySlot%></td>
-      <td><%=punch.clientInfo%></td>
-      <td><%=punch.jobInfo%></td>
-      <td><%=punch.clockIn%></td>
-      <td><%=punch.clockOut%></td>
-      <td>
-        <% if(punch.clockOut) { %>
-           <%= punch.earnedHours %> Hours
-         <% } else { %>  
-         <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
-         <% } %>
-      </td>
+      <th colspan='4' id='Active jobs that are not yet punched out'>Active Jobs</th>
     </tr>
-  <%})%>
+    <tr>
+      <th scope="col" id='Client Information'>Client</th>
+      <th scope="col" id='Job Information'>Job</th>
+      <th scope="col" id='Time clocked in'>Time In</th>
+      <th scope="col" id='Punch Out Button'>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% shiftArr.forEach(punch => { %>
+      <% if(!punch.clockOut){ %>
+        <tr>
+          <td><%=punch.clientInfo%></td>
+          <td><%=punch.jobInfo%></td>
+          <td><%=punch.clockIn%></td>
+          <td>
+            <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
+          </td>
+        </tr>
+      <% } %>
+    <%})%>
+  </tbody>
+</table>
+<hr>
+<table>
+  <thead>
+    <tr>
+      <th colspan='5' id='Earned Hours on jobs that have been punched out recently'>Entries from the past 7 days</th>
+    </tr>
+    <tr>
+      <th scope="col" id='Client Information'>Client</th>
+      <th scope="col" id='Job Information'>Job</th>
+      <th scope="col" id='Time clocked in'>Time In</th>
+      <th scope="col" id='Time clocked out'>Time Out</th>
+      <th scope="col" id='Hours Earned'>Hours</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% shiftArr.forEach(punch => { %>
+      <% if(punch.clockOut && punch.daySlot > (todaySend.day - 7)) { %>
+      <tr>
+        <td><%=punch.clientInfo%></td>
+        <td><%=punch.jobInfo%></td>
+        <td><%=punch.clockIn%></td>
+        <td><%=punch.clockOut%></td>
+        <td><%=punch.earnedHours%></td>
+      <% } %>
+    <%})%>
+  </tbody>
 </table>
 <!-- display week month or such determined by settings -->
-<h3>This weeks stats</h3>
-
+<h3>Daily hours this week</h3>
+<table>
+  <thead>
+    <tr>
+      <th scope="col" id='Hours for Sunday'>Sunday</th>
+      <th scope="col" id='Hours for Monday'>Monday</th>
+      <th scope="col" id='Hours for Tuesday'>Tuesday</th>
+      <th scope="col" id='Hours for Wednesday'>Wednesday</th>
+      <th scope="col" id='Hours for Thursday'>Thursday</th>
+      <th scope="col" id='Hours for Friday'>Friday</th>
+      <th scope="col" id='Hours for Saturday'>Saturday</th>
+      <th scope="col" id='Hours for the week'>Week</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= weekStats.sundayTotal %></td>
+      <td><%= weekStats.mondayTotal %></td>
+      <td><%= weekStats.tuesdayTotal %></td>
+      <td><%= weekStats.wednesdayTotal %></td>
+      <td><%= weekStats.thursdayTotal %></td>
+      <td><%= weekStats.fridayTotal %></td>
+      <td><%= weekStats.saturdayTotal %></td>
+      <td><%= ( weekStats.saturdayTotal + weekStats.sundayTotal + weekStats.mondayTotal + weekStats.tuesdayTotal + weekStats.wednesdayTotal + weekStats.thursdayTotal + weekStats.fridayTotal ).toFixed(2) %></td>
+    </tr>
+  </tbody>
+</table>
 
 <%-include('partials/footer')%>
