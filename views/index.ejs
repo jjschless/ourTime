@@ -17,6 +17,12 @@ Today is <%= todaySend.title %>
 <input type="text" name="ourTime[jobInfo]" placeholder="job info">
 <input type="submit">
 </form>
+<form action="/punch-in" class="timeclock" method="POST">
+  <input type="text" name="ourTime[clientInfo]" placeholder="client info">
+  <input type="text" name="ourTime[jobInfo]" placeholder="job info">
+  <input type="datetime-local" name="ourTime[clockIn]"> 
+  <input type="submit">
+</form>
 <!-- show stats for today -->
 
 
@@ -52,7 +58,7 @@ Today is <%= todaySend.title %>
 <table>
   <thead>
     <tr>
-      <th colspan='5' id='Earned Hours on jobs that have been punched out recently'>Entries from the past 7 days</th>
+      <th colspan='6' id='Earned Hours on jobs that have been punched out recently'>Entries from the past 7 days</th>
     </tr>
     <tr>
       <th scope="col" id='Client Information'>Client</th>
@@ -60,6 +66,7 @@ Today is <%= todaySend.title %>
       <th scope="col" id='Time clocked in'>Time In</th>
       <th scope="col" id='Time clocked out'>Time Out</th>
       <th scope="col" id='Hours Earned'>Hours</th>
+      <th scope="col" id='Edit Button'>Edit</th>
     </tr>
   </thead>
   <tbody>
@@ -71,6 +78,7 @@ Today is <%= todaySend.title %>
         <td><%=punch.clockIn%></td>
         <td><%=punch.clockOut%></td>
         <td><%=punch.earnedHours%></td>
+        <td><a href="/<%=punch._id%>/edit">Edit</a></td>
       <% } %>
     <%})%>
   </tbody>

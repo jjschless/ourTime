@@ -5,7 +5,8 @@ const express = require('express'),
       moment = require('moment'),
       PunchTime = require('./models/punch'),
       seedb = require('./models/seedb'),
-      cm = require('./custom_modules/cm');
+      cm = require('./custom_modules/cm'),
+      methodOverride = require('method-override');
 
 mongoose.connect('mongodb://localhost/ourTime_v1', {
   useNewUrlParser: true,
@@ -18,7 +19,7 @@ app.set('view engine', 'ejs');
 //tell express to serve the public directory 
 //from the current directory __dirname to public
 app.use(express.static(__dirname + '/public'));
-// app.use(methodOverride('_method'));
+app.use(methodOverride('_method'));
 // app.use(flash());
 
 
@@ -44,9 +45,8 @@ var weekStats = {
   weekCalc: function(arr){
     let today = new Number(moment().format('DDD'));
     let dayIndex = moment().format('d');
-    console.log(arr);
-    for(dayIndex; dayIndex >= 0; dayIndex--){
-      var aQuery = (el) => el.daySlot == today && el.earnedHours > 0;
+    for(let x = dayIndex; x >= 0; x--){
+      var aQuery = function(el){ el.daySlot == today && el.earnedHours > 0 };
       clone = arr.filter(aQuery);
       console.log(clone);
       if(dayIndex === 6){
@@ -138,7 +138,7 @@ app.get('/', async function (req, res){
     day: moment().format('DDD')
   };
   // console.log(shiftArr);
-  if(weekStats.init === false){
+  if(!weekStats.init){
     weekStats.weekCalc(punchArr);
     weekStats.init = true;
   }
@@ -146,11 +146,15 @@ app.get('/', async function (req, res){
 });
 
 app.post('/punch-in', function(req, res){
-  let newPunch = {
+    let newPunch = {
     daySlot: moment().format('DDD'),
     clientInfo: req.body.ourTime.clientInfo,
-    jobInfo: req.body.ourTime.jobInfo,
-    clockIn: moment()
+    jobInfo: req.body.ourTime.jobInfo
+  }
+  if(!req.body.ourTime.clockIn){
+    newPunch.clockIn = moment();
+  } else {
+    newPunch.clockIn = moment(req.body.ourTime.clockIn);
   }
   PunchTime.create(newPunch, function(err, newClock){
     console.log('Create done');
@@ -166,9 +170,11 @@ app.post('/punch-in', function(req, res){
  });
 
 app.post('/punch-out', async function(req, res){
+  console.log('req.body.ourTime.Id')
+  console.log(req.body.ourTime.Id)
+
   var workingCopy = await PunchTime.findById(req.body.ourTime.Id);
-  console.log(workingCopy);
-  var sumHours = ((moment() - workingCopy.clockIn) * 0.00000028).toFixed(2) 
+  var sumHours = ((moment() - workingCopy.clockIn) * 0.00000028).toFixed(2); 
   await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: moment(), earnedHours: sumHours}, function(err, updateClock){
     if(err){
       console.log('error with update');
@@ -188,9 +194,29 @@ app.post('/punch-out', async function(req, res){
 });
 
 
+app.get('/:id/edit', async function (req, res){
+  var workingCopy = await PunchTime.findById(req.params.id);
+  console.log('edit workingcopy');
+  console.log(workingCopy);
+  res.render('edit', { shiftObj : cm.displayPunchObj(workingCopy)});
+})
 
-
-
+app.put('update/:id', function (req, res){
+  let updatePunch = {
+    clientInfo: req.body.ourTime.clientInfo,
+    jobInfo: req.body.ourTime.jobInfo,
+    clockIn: moment(req.body.ourTime.clockIn),
+    clockOut: moment(req.body.ourTime.clockOut),
+  }
+  updatePunch.earnedHours = ((updatePunch.clockOut - updatePunch.clockIn)* 0.00000028).toFixed(2);
+  PunchTime.findByIdAndUpdate(req.params.id, updatePunch, function(err, updated){
+    if(err){
+      res.redirect('/' + req.params.id + '/edit');
+    } else {
+      res.redirect('/');
+    }
+  })
+})
 
 
 

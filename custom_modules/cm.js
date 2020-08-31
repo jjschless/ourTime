@@ -112,6 +112,24 @@ var cm = {
       shiftArr.push(shiftObj);
     }
     return shiftArr.reverse();
+  },
+  displayPunchObj: function (punchObj){
+    let shiftObj = {};
+    if (punchObj.clockIn){
+      shiftObj.clockIn = moment(punchObj.clockIn).format('YYYY-MM-DDTHH:mm');
+    }  
+    if(punchObj.clockOut){
+      shiftObj.clockOut = moment(punchObj.clockOut).format('YYYY-MM-DDTHH:mm');
+    }
+    shiftObj.username = punchObj.username;
+    shiftObj.daySlot = punchObj.daySlot;
+    shiftObj.clientInfo = punchObj.clientInfo;
+    shiftObj.jobInfo = punchObj.jobInfo;
+    shiftObj._id = punchObj._id;
+    shiftObj.earnedHours = punchObj.earnedHours;
+    return shiftObj;
   }
+  
+
 }
 module.exports = cm;

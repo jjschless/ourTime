@@ -1,0 +1,44 @@
+<%-include('partials/header')%>
+<%=shiftObj.clockIn%>
+<div class="editor">
+    <form action="/update/<%=shiftObj._id%>?_method=PUT" class="edit__form" method="POST">
+        <input type="text" class="edit__form--string" name="ourTime[clientInfo]" value="<%=shiftObj.clientInfo%>">
+        <input type="text" class="edit__form--string" name="ourTime[jobInfo]" value="<%=shiftObj.jobInfo%>">
+        <input type="datetime-local" class="edit__form--date" name="ourTime[clockIn]" value="<%=shiftObj.clockIn%>">
+        <input type="datetime-local" class="edit__form--date" name="ourTime[clockOut]" value="<%=shiftObj.clockOut%>">
+        <input type="submit" class="btn--submit">
+    </form>
+
+    <a href="/">Return Home</a>
+    
+    
+    
+    
+    <!-- <table>
+        <thead>
+          <tr>
+            <th colspan='5' id='Earned Hours on jobs that have been punched out recently'>Entries from the past 7 days</th>
+          </tr>
+          <tr>
+            <th scope="col" id='Client Information'>Client</th>
+            <th scope="col" id='Job Information'>Job</th>
+            <th scope="col" id='Time clocked in'>Time In</th>
+            <th scope="col" id='Time clocked out'>Time Out</th>
+            <th scope="col" id='Hours Earned'>Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table> -->
+    
+
+</div>
+
+
+
+
+
+
+
+<%-include('partials/footer')%>
