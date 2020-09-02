@@ -1,104 +1,13 @@
 const moment = require('moment');
+const e = require('express');
 
 var cm = { 
-  monthsFull: [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ], 
-  monthsShort: [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
-  ], 
-  daysShort: [
-    'Sun',
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat'
-  ], 
-  daysLong: [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday'
-  ], 
-  dateFormat: function (date, type){
-  // type is format style: long, short, title, slot
-
-  // if no date is supplied '' then one will be created
-  
-    if(date === ''){
-      date = new Date();
-    }
-    // get index values based on the date
-    let year = date.getFullYear(),
-        monthIndex = date.getMonth(),
-        day = date.getDate(),
-        weekDayIndex = date.getDay(),
-        hours = date.getHours(),
-        minutes = date.getMinutes();
-
-    if(minutes >= 0 && minutes <= 9){
-      minutes = ('0' + minutes).slice(-2);
-    }
-
-    // determine ordinal suffix
-    if(day === 1 || day === 21 || day === 31){
-      var ordinalSuffix = 'st';
-    } else if (day === 2 || day === 22) {
-      var ordinalSuffix = 'nd';
-    } else if (day === 3 || day === 23) {
-      var ordinalSuffix = 'rd';
-    } else {
-      var ordinalSuffix = 'th';
-    }
-      
-    // 4 variations of output
-    if(type === 'short'){
-      var dateString = `${this.daysShort[weekDayIndex]}, ${this.monthsShort[monthIndex]} ${day} ${hours}:${minutes}`;
-    } else if (type === 'long'){
-      var dateString = `${this.daysLong[weekDayIndex]}, ${this.monthsFull[monthIndex]} ${day}${ordinalSuffix} ${hours}:${minutes}`;
-    } else if (type === 'title'){
-      var dateString = `${this.daysLong[weekDayIndex]}, ${this.monthsFull[monthIndex]} ${day}${ordinalSuffix} ${year}`;
-    } else if (type === 'slot'){
-      if(day >= 0 && day <= 9){
-        day = ( '0' + day ).slice(-2);
-      }
-      var dateString = `${monthIndex + 1}${day}${year}`;
-    }
-      return dateString;
-  },
   displayPunch: function (punchArr){
     let shiftArr = [];
     for(var i in punchArr){
       let shiftObj = {};
       if (punchArr[i].clockIn){
-        shiftObj.clockIn = moment(punchArr[i].clockIn).format('ddd MMM Do hh:mm a');
+        shiftObj.clockIn = moment(punchArr[i].clockIn).format('ddd MMM Do hh:mm a'); //readable form
       }  
       if(punchArr[i].clockOut){
         shiftObj.clockOut = moment(punchArr[i].clockOut).format('ddd MMM Do hh:mm a');
@@ -111,12 +20,12 @@ var cm = {
       shiftObj.earnedHours = punchArr[i].earnedHours;
       shiftArr.push(shiftObj);
     }
-    return shiftArr.reverse();
+    return shiftArr.reverse(); //reverses the array so that the newest item is first
   },
   displayPunchObj: function (punchObj){
     let shiftObj = {};
     if (punchObj.clockIn){
-      shiftObj.clockIn = moment(punchObj.clockIn).format('YYYY-MM-DDTHH:mm');
+      shiftObj.clockIn = moment(punchObj.clockIn).format('YYYY-MM-DDTHH:mm'); //format for datetime-local form input
     }  
     if(punchObj.clockOut){
       shiftObj.clockOut = moment(punchObj.clockOut).format('YYYY-MM-DDTHH:mm');
@@ -128,7 +37,53 @@ var cm = {
     shiftObj._id = punchObj._id;
     shiftObj.earnedHours = punchObj.earnedHours;
     return shiftObj;
-  }
+  },
+  weekData: [
+    { daySlot: 0, pArr: [] }, //sunday = 0
+    { daySlot: 0, pArr: [] }, //monday = 1
+    { daySlot: 0, pArr: [] }, //tuesday = 2
+    { daySlot: 0, pArr: [] }, //wednesday = 3
+    { daySlot: 0, pArr: [] }, // thurs = 4
+    { daySlot: 0, pArr: [] }, // friday = 5
+    { daySlot: 0, pArr: [] }, //saturday = 6
+    ],
+  getToday: () => parseInt( moment().format('DDD'), 10),
+  getDayIndex: () => parseInt( moment().format('d'), 10),
+  weekStart: 0, //sunday default
+  weekTotals: [ 0, 0, 0, 0, 0, 0, 0],
+  weekCalc: function(data){
+    let today = this.getToday(); // which day of the year is today
+    let dayIndex = this.getDayIndex(); //0 for sunday, 1 for monday, and so on
+    if(dayIndex > 0){ //is today later than sunday?
+      for(i = dayIndex; i >= 0; i--){
+        this.weekData[i].daySlot = today; //assign each weekdata array-object a day number (of 365 days)
+        today -= 1;
+      }
+    } else { //today is sunday
+      this.weekData[0].daySlot = today;
+    }
+    if(data.constructor === Array){  //for array input
+      let today = this.getToday();
+      data.forEach(function (el){
+        if(el.daySlot >= ( today - dayIndex )){ //push only the items for this week
+          let offset = el.daySlot - today; //determine which day of the week this item belongs to
+          
+          cm.weekData[dayIndex+offset].pArr.push(el); //push item to array index 
+          cm.weekTotals[dayIndex+offset] += el.earnedHours; //add up earnedHours
+        }
+      });
+    } else { //for obj input 
+      let today = this.getToday();
+      let offset = data.daySlot - today; //determine which day of the week this item belongs to
+      this.weekData[dayIndex+offset].pArr.push(data); //push item to array index 
+      this.weekTotals[dayIndex+offset] += data.earnedHours; //add up earnedHours
+    }
+    console.log(cm.weekData);
+    console.log(cm.weekTotals);
+  },   
+  weekStatsInit: false //flag so that the intialization does not run more than once
+    
+  
   
 
 }

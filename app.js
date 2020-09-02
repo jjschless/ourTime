@@ -25,84 +25,6 @@ app.use(methodOverride('_method'));
 
 // seedb();
 
-var weekStats = { 
-  init: false,
-  weekStart: 'Sunday',
-  sundayPunches: [],
-  mondayPunches: [],
-  tuesdayPunches: [],
-  wednesdayPunches: [],
-  thursdayPunches: [],
-  fridayPunches: [],
-  saturdayPunches: [],
-  sundayTotal: 0,
-  mondayTotal: 0,
-  tuesdayTotal: 0,
-  wednesdayTotal: 0,
-  thursdayTotal: 0,
-  fridayTotal: 0,
-  saturdayTotal: 0,
-  weekCalc: function(arr){
-    let today = new Number(moment().format('DDD'));
-    let dayIndex = moment().format('d');
-    for(let x = dayIndex; x >= 0; x--){
-      var aQuery = function(el){ el.daySlot == today && el.earnedHours > 0 };
-      clone = arr.filter(aQuery);
-      console.log(clone);
-      if(dayIndex === 6){
-        let o = clone.length - 1
-        for(let i = 0; i <= o; i++){
-          this.saturdayTotal += clone[0].earnedHours;
-          this.saturdayPunches.push(clone[0]);
-          clone.shift();
-        }
-      } else if(dayIndex === 5){
-        let o = clone.length - 1
-        for(let i = 0; i <= o; i++){
-          this.fridayTotal += clone[0].earnedHours;
-          this.fridayPunches.push(clone[0]);
-          clone.shift();
-        }
-      } else if(dayIndex === 4){
-        let o = clone.length - 1
-        for(let i = 0; i <= o; i++){
-          this.thursdayTotal += clone[0].earnedHours;
-          this.thursdayPunches.push(clone[0]);
-          clone.shift();
-        } 
-      } else if(dayIndex === 3){
-        let o = clone.length - 1
-        for(let i = 0; i <= o; i++){
-          this.wednesdayTotal += clone[0].earnedHours;
-          this.wednesdayPunches.push(clone[0]);
-          clone.shift();
-        }  
-      } else if(dayIndex === 2){
-        let o = clone.length - 1
-        for(let i = 0; i <= o; i++){
-          this.tuesdayTotal += clone[0].earnedHours;
-          this.tuesdayPunches.push(clone[0]);
-          clone.shift();
-        } 
-      } else if(dayIndex === 1){
-        let o = clone.length - 1
-        for(let i = 0; i <= o; i++){
-          this.mondayTotal += clone[0].earnedHours;
-          this.mondayPunches.push(clone[0]);
-          clone.shift();
-        }   
-      } else {
-        let o = clone.length - 1
-        for(let i = 0; i <= o; i++){
-          this.sundayTotal += clone[0].earnedHours;
-          this.sundayPunches.push(clone[0]);
-          clone.shift();
-        } 
-      } 
-      today -= 1;
-    }
-  }
-}
 
 //passport config
 //set up the session
@@ -132,17 +54,19 @@ var weekStats = {
 
 app.get('/', async function (req, res){
   var punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
-  let shiftArr = cm.displayPunch(punchArr);
+  let shiftArr = Array.from(cm.displayPunch(punchArr));
   let todaySend = {
     title: moment().format('dddd, MMMM Do YYYY'),
     day: moment().format('DDD')
   };
   // console.log(shiftArr);
-  if(!weekStats.init){
-    weekStats.weekCalc(punchArr);
-    weekStats.init = true;
+  if(!cm.weekStatsInit){
+    cm.weekCalc(punchArr);
+    cm.weekStatsInit = true;
   }
-  res.render('index', { shiftArr : shiftArr, weekStats: weekStats, todaySend: todaySend});
+  var weekTotals = Array.from(cm.weekTotals);
+  var weekData = cm.weekData;
+  res.render('index', { shiftArr : shiftArr, weekTotals: weekTotals, weekData: weekData, todaySend: todaySend});
 });
 
 app.post('/punch-in', function(req, res){
@@ -157,21 +81,21 @@ app.post('/punch-in', function(req, res){
     newPunch.clockIn = moment(req.body.ourTime.clockIn);
   }
   PunchTime.create(newPunch, function(err, newClock){
-    console.log('Create done');
+    // console.log('Create done');
     if(err){
       console.log(err);
       res.redirect('/');
     } else {
       res.redirect('/');
-      console.log(newClock);
+      // console.log(newClock);
       console.log('create success');
     }
    });
  });
 
 app.post('/punch-out', async function(req, res){
-  console.log('req.body.ourTime.Id')
-  console.log(req.body.ourTime.Id)
+  // console.log('req.body.ourTime.Id')
+  // console.log(req.body.ourTime.Id)
 
   var workingCopy = await PunchTime.findById(req.body.ourTime.Id);
   var sumHours = ((moment() - workingCopy.clockIn) * 0.00000028).toFixed(2); 
@@ -181,12 +105,7 @@ app.post('/punch-out', async function(req, res){
       console.log(err);
       res.redirect('/');
    } else {
-      workingCopy.clockOut = moment();
-      workingCopy.earnedHours = sumHours;
-      let pushArr = [];
-      pushArr.push(workingCopy);
-      console.log(pushArr);
-      weekStats.weekCalc(pushArr);
+      console.log(updateClock);
       console.log('update success');
       res.redirect('/');
    }
@@ -196,13 +115,14 @@ app.post('/punch-out', async function(req, res){
 
 app.get('/:id/edit', async function (req, res){
   var workingCopy = await PunchTime.findById(req.params.id);
-  console.log('edit workingcopy');
-  console.log(workingCopy);
+  // console.log('edit workingcopy');
+  // console.log(workingCopy);
   res.render('edit', { shiftObj : cm.displayPunchObj(workingCopy)});
 })
 
-app.put('update/:id', function (req, res){
+app.put('/update/:id', function (req, res){
   let updatePunch = {
+    daySlot: moment(req.body.ourTime.clockIn).format('DDD'),
     clientInfo: req.body.ourTime.clientInfo,
     jobInfo: req.body.ourTime.jobInfo,
     clockIn: moment(req.body.ourTime.clockIn),

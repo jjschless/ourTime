@@ -100,14 +100,14 @@ Today is <%= todaySend.title %>
   </thead>
   <tbody>
     <tr>
-      <td><%= weekStats.sundayTotal %></td>
-      <td><%= weekStats.mondayTotal %></td>
-      <td><%= weekStats.tuesdayTotal %></td>
-      <td><%= weekStats.wednesdayTotal %></td>
-      <td><%= weekStats.thursdayTotal %></td>
-      <td><%= weekStats.fridayTotal %></td>
-      <td><%= weekStats.saturdayTotal %></td>
-      <td><%= ( weekStats.saturdayTotal + weekStats.sundayTotal + weekStats.mondayTotal + weekStats.tuesdayTotal + weekStats.wednesdayTotal + weekStats.thursdayTotal + weekStats.fridayTotal ).toFixed(2) %></td>
+      <td><%= weekTotals[0].toFixed(2) %></td>
+      <td><%= weekTotals[1].toFixed(2) %></td>
+      <td><%= weekTotals[2].toFixed(2) %></td>
+      <td><%= weekTotals[3].toFixed(2) %></td>
+      <td><%= weekTotals[4].toFixed(2) %></td>
+      <td><%= weekTotals[5].toFixed(2) %></td>
+      <td><%= weekTotals[6].toFixed(2) %></td>
+      <td><%= ( weekTotals[6] + weekTotals[0] + weekTotals[1] + weekTotals[2] + weekTotals[3] + weekTotals[4] + weekTotals[5] ).toFixed(2) %></td>
     </tr>
   </tbody>
 </table>
