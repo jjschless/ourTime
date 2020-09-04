@@ -4,7 +4,9 @@
   "description": "Time and task tracker",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch:sass": "node-sass sass/main.scss css/style.css -w",
+    "devserver": "live-server",
+    "start": "npm-run-all --parallel devserver watch:sass"  
   },
   "repository": {
     "type": "git",
@@ -32,5 +34,8 @@
     "method-override": "^3.0.0",
     "moment": "^2.27.0",
     "mongoose": "^5.9.25"
+  },
+  "devDependencies": {
+    "node-sass": "^4.14.1"
   }
 }
