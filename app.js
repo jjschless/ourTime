@@ -51,27 +51,22 @@ app.use(methodOverride('_method'));
 //==============
 // Routes
 //==============
-
+//INDEX and Punch In
 app.get('/', async function (req, res){
   var punchArr = await PunchTime.find({ username: { $in: 'JJ'} });
   let shiftArr = Array.from(cm.displayPunch(punchArr));
   let todaySend = {
     title: moment().format('dddd, MMMM Do YYYY'),
-    day: moment().format('DDD')
+    day: cm.getToday()
   };
-  // console.log(shiftArr);
-  if(!cm.weekStatsInit){
-    cm.weekCalc(punchArr);
-    cm.weekStatsInit = true;
-  }
-  var weekTotals = Array.from(cm.weekTotals);
-  var weekData = cm.weekData;
-  res.render('index', { shiftArr : shiftArr, weekTotals: weekTotals, weekData: weekData, todaySend: todaySend});
+  //reset week totals and data if an edit or delete was made
+  var weekTotals = cm.weekCalc(punchArr);
+  res.render('index', { shiftArr : shiftArr, weekTotals: weekTotals, todaySend: todaySend});
 });
-
+//PUNCH IN
 app.post('/punch-in', function(req, res){
     let newPunch = {
-    daySlot: moment().format('DDD'),
+    daySlot: cm.getToday(),
     clientInfo: req.body.ourTime.clientInfo,
     jobInfo: req.body.ourTime.jobInfo
   }
@@ -92,7 +87,7 @@ app.post('/punch-in', function(req, res){
     }
    });
  });
-
+//PUNCH OUT
 app.post('/punch-out', async function(req, res){
   // console.log('req.body.ourTime.Id')
   // console.log(req.body.ourTime.Id)
@@ -101,26 +96,26 @@ app.post('/punch-out', async function(req, res){
   var sumHours = ((moment() - workingCopy.clockIn) * 0.00000028).toFixed(2); 
   await PunchTime.findByIdAndUpdate(req.body.ourTime.Id, {clockOut: moment(), earnedHours: sumHours}, function(err, updateClock){
     if(err){
-      console.log('error with update');
+      console.log('error with punch out');
       console.log(err);
       res.redirect('/');
    } else {
       console.log(updateClock);
-      console.log('update success');
+      console.log('punch out success');
       res.redirect('/');
    }
  });
 });
 
-
-app.get('/:id/edit', async function (req, res){
+//EDIT
+app.get('/:id/edit', async (req, res) => {
   var workingCopy = await PunchTime.findById(req.params.id);
   // console.log('edit workingcopy');
   // console.log(workingCopy);
   res.render('edit', { shiftObj : cm.displayPunchObj(workingCopy)});
 })
-
-app.put('/update/:id', function (req, res){
+//UPDATE
+app.put('/update/:id', async (req, res) => {
   let updatePunch = {
     daySlot: moment(req.body.ourTime.clockIn).format('DDD'),
     clientInfo: req.body.ourTime.clientInfo,
@@ -129,7 +124,7 @@ app.put('/update/:id', function (req, res){
     clockOut: moment(req.body.ourTime.clockOut),
   }
   updatePunch.earnedHours = ((updatePunch.clockOut - updatePunch.clockIn)* 0.00000028).toFixed(2);
-  PunchTime.findByIdAndUpdate(req.params.id, updatePunch, function(err, updated){
+  await PunchTime.findByIdAndUpdate(req.params.id, updatePunch, function(err, updated){
     if(err){
       res.redirect('/' + req.params.id + '/edit');
     } else {
@@ -137,8 +132,17 @@ app.put('/update/:id', function (req, res){
     }
   })
 })
-
-
+// DELETE
+app.delete('/delete/:id', async (req, res) => {
+  try {
+    await PunchTime.deleteOne({_id: req.params.id});
+    console.log('delete success')
+    res.redirect("/");
+  } catch (error) {
+    console.log(error.message);
+    res.redirect("/");
+  }
+});
 
 app.listen(3000, function(){
   console.log('ourTime online');

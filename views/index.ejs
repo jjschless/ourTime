@@ -67,6 +67,7 @@ Today is <%= todaySend.title %>
       <th scope="col" id='Time clocked out'>Time Out</th>
       <th scope="col" id='Hours Earned'>Hours</th>
       <th scope="col" id='Edit Button'>Edit</th>
+      <th scope="col" id='Delete Button'>Delete</th>
     </tr>
   </thead>
   <tbody>
@@ -79,6 +80,7 @@ Today is <%= todaySend.title %>
         <td><%=punch.clockOut%></td>
         <td><%=punch.earnedHours%></td>
         <td><a href="/<%=punch._id%>/edit">Edit</a></td>
+        <td><form action='/delete/<%=punch._id%>?_method=DELETE' method='POST'><button>Delete</button></form></td>
       <% } %>
     <%})%>
   </tbody>

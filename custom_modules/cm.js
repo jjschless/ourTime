@@ -38,50 +38,29 @@ var cm = {
     shiftObj.earnedHours = punchObj.earnedHours;
     return shiftObj;
   },
-  weekData: [
-    { daySlot: 0, pArr: [] }, //sunday = 0
-    { daySlot: 0, pArr: [] }, //monday = 1
-    { daySlot: 0, pArr: [] }, //tuesday = 2
-    { daySlot: 0, pArr: [] }, //wednesday = 3
-    { daySlot: 0, pArr: [] }, // thurs = 4
-    { daySlot: 0, pArr: [] }, // friday = 5
-    { daySlot: 0, pArr: [] }, //saturday = 6
-    ],
   getToday: () => parseInt( moment().format('DDD'), 10),
   getDayIndex: () => parseInt( moment().format('d'), 10),
   weekStart: 0, //sunday default
-  weekTotals: [ 0, 0, 0, 0, 0, 0, 0],
   weekCalc: function(data){
+    let calc = [ 0, 0, 0, 0, 0, 0, 0];
     let today = this.getToday(); // which day of the year is today
     let dayIndex = this.getDayIndex(); //0 for sunday, 1 for monday, and so on
-    if(dayIndex > 0){ //is today later than sunday?
-      for(i = dayIndex; i >= 0; i--){
-        this.weekData[i].daySlot = today; //assign each weekdata array-object a day number (of 365 days)
-        today -= 1;
-      }
-    } else { //today is sunday
-      this.weekData[0].daySlot = today;
-    }
     if(data.constructor === Array){  //for array input
       let today = this.getToday();
       data.forEach(function (el){
         if(el.daySlot >= ( today - dayIndex )){ //push only the items for this week
           let offset = el.daySlot - today; //determine which day of the week this item belongs to
-          
-          cm.weekData[dayIndex+offset].pArr.push(el); //push item to array index 
-          cm.weekTotals[dayIndex+offset] += el.earnedHours; //add up earnedHours
+          calc[dayIndex+offset] += el.earnedHours; //add up earnedHours
         }
       });
     } else { //for obj input 
       let today = this.getToday();
       let offset = data.daySlot - today; //determine which day of the week this item belongs to
-      this.weekData[dayIndex+offset].pArr.push(data); //push item to array index 
-      this.weekTotals[dayIndex+offset] += data.earnedHours; //add up earnedHours
+      calc[dayIndex+offset] += data.earnedHours; //add up earnedHours
     }
-    console.log(cm.weekData);
-    console.log(cm.weekTotals);
-  },   
-  weekStatsInit: false //flag so that the intialization does not run more than once
+    console.log(calc);
+    return calc;
+  }
     
   
   
