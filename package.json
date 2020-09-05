@@ -4,9 +4,9 @@
   "description": "Time and task tracker",
   "main": "app.js",
   "scripts": {
-    "watch:sass": "node-sass sass/main.scss css/style.css -w",
+    "watch:sass": "node-sass sass/main.scss public/css/styles.css -w",
     "devserver": "live-server",
-    "start": "npm-run-all --parallel devserver watch:sass"  
+    "start": "npm-run-all --parallel devserver watch:sass"
   },
   "repository": {
     "type": "git",
@@ -36,6 +36,7 @@
     "mongoose": "^5.9.25"
   },
   "devDependencies": {
-    "node-sass": "^4.14.1"
+    "node-sass": "^4.14.1",
+    "npm-run-all": "^4.1.5"
   }
 }

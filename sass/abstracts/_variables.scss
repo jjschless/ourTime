@@ -1,0 +1,25 @@
+// colors
+:root{
+    --color-primary: #127AF0;
+
+// complimentary color twins
+    --color-primary-light: #05EEF0;
+    --color-comp-light: #F07329;
+
+    --color-primary-dark: #2A1DF0;
+    --color-comp-dark: #F0D029;
+
+//shades
+    --color-grey-light-1: #faf9f9;
+    --color-grey-light-2: #ccc;
+
+    --color-grey-dark-1: #333;
+    --color-grey-dark-2: #777;
+    --color-grey-dark-3: #999;
+
+// shadows    
+    --shadow-dark: 0 2rem 6rem rgba(0,0,0,.3);
+    --shadow-light: 0 2rem 5rem rgba(0,0,0,.06);
+
+
+}

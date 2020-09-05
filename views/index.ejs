@@ -1,9 +1,71 @@
 <%-include('partials/header')%>
+<header class="header">
+  <div class="dayInfo">
+    <p class="dayInfo__headline">Today is <%= todaySend.title %></p>
+  </div>
+</header>
 
+<main class="main">
+  
+  <section class="section-punch">
+    
+    <div class="punch-form">
 
-<h1>Index Page</h1>
+      <form class="form" action="/punch-in" method="POST">
+        <h2 class="form__header">Clock in</h2>
+        <div class="form__group">
+          <label for="client" class="form__label">Client Name</label>
+          <input class="form__input-info" id="client" type="text" name="ourTime[clientInfo]" placeholder="client info">
+        </div>
+        <div class="form__group">
+          <label for="job" class="form__label">Job Details</label>
+          <input id="job" class="form__input-info" type="text" name="ourTime[jobInfo]" placeholder="job info">
+        </div>
+        <div class="form__group">
+          <label for="time-in" class="form__label">Time - leave blank for now</label>
+          <input id="time-in" class="form__input-time" type="datetime-local" name="ourTime[clockIn]" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}">
+        </div>
+        
+        <div class="form__group">
+          <input class="btn btn-submit" type="submit">
+        </div>
+      </form>
+    </div>
+  </section>
+  <section class="section-active">
+    <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th colspan='4' class="table__header" id='Active jobs that are not yet punched out'>Active Jobs</th>
+        </tr>
+        <tr>
+          <th scope="col" id='Client Information'>Client</th>
+          <th scope="col" id='Job Information'>Job</th>
+          <th scope="col" id='Time clocked in'>Time In</th>
+          <th scope="col" id='Punch Out Button'>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% shiftArr.forEach(punch => { %>
+          <% if(!punch.clockOut){ %>
+            <tr>
+              <td><%=punch.clientInfo%></td>
+              <td><%=punch.jobInfo%></td>
+              <td><%=punch.clockIn%></td>
+              <td>
+                <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
+              </td>
+            </tr>
+          <% } %>
+        <%})%>
+      </tbody>
+    </table>
+    </div>
 
-Today is <%= todaySend.title %>
+  </section>
+</main>
+
 
 <!-- add time -->
 <!-- date and time autofill -->
@@ -11,18 +73,8 @@ Today is <%= todaySend.title %>
 <!-- business or personal radio selector -->
 <!-- client dropdown -->
 <!-- job or p.o. # -->
-<p>Punch in</p>
-<form class="timeclock" action="/punch-in" method="POST">
-<input type="text" name="ourTime[clientInfo]" placeholder="client info">
-<input type="text" name="ourTime[jobInfo]" placeholder="job info">
-<input type="submit">
-</form>
-<form action="/punch-in" class="timeclock" method="POST">
-  <input type="text" name="ourTime[clientInfo]" placeholder="client info">
-  <input type="text" name="ourTime[jobInfo]" placeholder="job info">
-  <input type="datetime-local" name="ourTime[clockIn]"> 
-  <input type="submit">
-</form>
+
+
 <!-- show stats for today -->
 
 
