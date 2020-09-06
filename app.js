@@ -108,7 +108,7 @@ app.post('/punch-out', async function(req, res){
 });
 
 //EDIT
-app.get('/:id/edit', async (req, res) => {
+app.get('/edit/:id', async (req, res) => {
   var workingCopy = await PunchTime.findById(req.params.id);
   // console.log('edit workingcopy');
   // console.log(workingCopy);

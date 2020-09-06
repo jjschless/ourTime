@@ -1,47 +1,51 @@
 <%-include('partials/header')%>
-<%=shiftObj.clockIn%>
-<div class="editor">
-    <form action="/update/<%=shiftObj._id%>?_method=PUT" class="edit__form" method="POST">
-        <input type="text" class="edit__form--string" name="ourTime[clientInfo]" value="<%=shiftObj.clientInfo%>">
-        <input type="text" class="edit__form--string" name="ourTime[jobInfo]" value="<%=shiftObj.jobInfo%>">
-        <input type="datetime-local" class="edit__form--date" name="ourTime[clockIn]" value="<%=shiftObj.clockIn%>">
-        <input type="datetime-local" class="edit__form--date" name="ourTime[clockOut]" value="<%=shiftObj.clockOut%>">
-        <input type="submit" class="btn--submit">
-    </form>
-
-    <a href="/">Return Home</a>
-    
-    <div class="form__group">
-      <label for="time-out" class="form__label">Time Out</label>
-      <input id="time-out" class="form__input-time" type="datetime-local" name="ourTime[clockIn]">
-    </div>
-    
-    
-    <!-- <table>
-        <thead>
-          <tr>
-            <th colspan='5' id='Earned Hours on jobs that have been punched out recently'>Entries from the past 7 days</th>
-          </tr>
-          <tr>
-            <th scope="col" id='Client Information'>Client</th>
-            <th scope="col" id='Job Information'>Job</th>
-            <th scope="col" id='Time clocked in'>Time In</th>
-            <th scope="col" id='Time clocked out'>Time Out</th>
-            <th scope="col" id='Hours Earned'>Hours</th>
-          </tr>
-        </thead>
-        <tbody>
-          
-        </tbody>
-      </table> -->
-    
-
+<header class="header">
+  <div class="header__container">
+    <h1 class="header__title" >ourTime</h1>
+    <h2 class="header__subtitle">Time and task tracker</h2>
+  </div>
+</header>
+<div class="bg-icon">
+  <svg class="bg-icon__clock">
+      <use xlink:href="/css/symbol-defs.svg#icon-clock"></use>
+  </svg>
+  <svg class="bg-icon__circle">
+    <use xlink:href="/css/symbol-defs.svg#icon-circular-graph"></use>
+  </svg>
 </div>
 
-
-
-
-
+<main class="main">
+  <div class="editor">
+    <form action="/update/<%=shiftObj._id%>?_method=PUT" class="form" method="POST">
+      <h2 class="form__header">Edit Entry</h2>
+      <div class="form__group">
+        <label for="client" class="form__label">Client Name</label>
+        <input class="form__input-info" id="client" type="text" name="ourTime[clientInfo]" value="<%=shiftObj.clientInfo%>">
+      </div>
+      <div class="form__group">
+        <label for="job" class="form__label">Job Details</label>
+        <input id="job" class="form__input-info" type="text" name="ourTime[jobInfo]" value="<%=shiftObj.jobInfo%>">
+      </div>
+      <div class="form__group">
+        <label for="time-in" class="form__label">Time In</label>
+        <input id="time-in" class="form__input-time" type="datetime-local" name="ourTime[clockIn]" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" value="<%=shiftObj.clockIn%>">
+      </div>
+      <div class="form__group">
+        <label for="time-out" class="form__label">Time Out</label>
+        <input id="time-out" class="form__input-time" type="datetime-local" name="ourTime[clockOut]" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" value="<%=shiftObj.clockOut%>">
+      </div>
+      <div class="form__group">
+        <input class="btn btn-submit" type="submit">
+      </div>
+      <svg class="form__icon-gauge">
+        <use xlink:href="/css/symbol-defs.svg#icon-gauge"></use>
+      </svg>
+    </form>
+    <a class="btn btn-home" href="/">Return Home</a>
+  </div>
+</main>
+ 
+    
 
 
 <%-include('partials/footer')%>

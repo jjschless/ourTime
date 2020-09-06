@@ -1,11 +1,21 @@
 <%-include('partials/header')%>
 <header class="header">
-  <div class="dayInfo">
-    <p class="dayInfo__headline">Today is <%= todaySend.title %></p>
+  <div class="header__container">
+    <h1 class="header__title" >ourTime</h1>
+    <h2 class="header__subtitle">Time and task tracker</h2>
+    <p class="header__dateline">Today is <%= todaySend.title %></p>
   </div>
 </header>
-
+<div class="bg-icon">
+  <svg class="bg-icon__clock">
+      <use xlink:href="/css/symbol-defs.svg#icon-clock"></use>
+  </svg>
+  <svg class="bg-icon__circle">
+    <use xlink:href="/css/symbol-defs.svg#icon-circular-graph"></use>
+  </svg>
+</div>
 <main class="main">
+  
   
   <section class="section-punch">
     
@@ -29,6 +39,9 @@
         <div class="form__group">
           <input class="btn btn-submit" type="submit">
         </div>
+        <svg class="form__icon-gauge">
+          <use xlink:href="/css/symbol-defs.svg#icon-gauge"></use>
+        </svg>
       </form>
     </div>
   </section>
@@ -37,7 +50,7 @@
     <table>
       <thead>
         <tr>
-          <th colspan='4' class="table__header" id='Active jobs that are not yet punched out'>Active Jobs</th>
+          <th colspan='4' id='Active jobs that are not yet punched out'>Active Jobs</th>
         </tr>
         <tr>
           <th scope="col" id='Client Information'>Client</th>
@@ -54,7 +67,7 @@
               <td><%=punch.jobInfo%></td>
               <td><%=punch.clockIn%></td>
               <td>
-                <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
+                <form action='/punch-out' method='POST'><button class="btn btn-punchOut" name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
               </td>
             </tr>
           <% } %>
@@ -62,8 +75,75 @@
       </tbody>
     </table>
     </div>
+    <div class="weekly-container">
+      <table>
+        <thead>
+          <tr>
+            <th colspan='8' id='this week daily totals'>This week's totals</th>
+          </tr>
+          <tr>
+            <th scope="col" id='Hours for Sunday'>Sunday</th>
+            <th scope="col" id='Hours for Monday'>Monday</th>
+            <th scope="col" id='Hours for Tuesday'>Tuesday</th>
+            <th scope="col" id='Hours for Wednesday'>Wednesday</th>
+            <th scope="col" id='Hours for Thursday'>Thursday</th>
+            <th scope="col" id='Hours for Friday'>Friday</th>
+            <th scope="col" id='Hours for Saturday'>Saturday</th>
+            <th scope="col" id='Hours for the week'>Week</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><%= weekTotals[0].toFixed(2) %></td>
+            <td><%= weekTotals[1].toFixed(2) %></td>
+            <td><%= weekTotals[2].toFixed(2) %></td>
+            <td><%= weekTotals[3].toFixed(2) %></td>
+            <td><%= weekTotals[4].toFixed(2) %></td>
+            <td><%= weekTotals[5].toFixed(2) %></td>
+            <td><%= weekTotals[6].toFixed(2) %></td>
+            <td><%= ( weekTotals[6] + weekTotals[0] + weekTotals[1] + weekTotals[2] + weekTotals[3] + weekTotals[4] + weekTotals[5] ).toFixed(2) %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
   </section>
+  <section class="section-history">
+    <div class="history-container">
+      <table>
+        <thead>
+          <tr>
+            <th colspan='7' id='Earned Hours on jobs that have been punched out recently'>Entries from the past 7 days</th>
+          </tr>
+          <tr>
+            <th scope="col" id='Client Information'>Client</th>
+            <th scope="col" id='Job Information'>Job</th>
+            <th scope="col" id='Time clocked in'>Time In</th>
+            <th scope="col" id='Time clocked out'>Time Out</th>
+            <th scope="col" id='Hours Earned'>Hours</th>
+            <th scope="col" id='Edit Button'>Edit</th>
+            <th scope="col" id='Delete Button'>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% shiftArr.forEach(punch => { %>
+            <% if(punch.clockOut && punch.daySlot > (todaySend.day - 7)) { %>
+            <tr>
+              <td><%=punch.clientInfo%></td>
+              <td><%=punch.jobInfo%></td>
+              <td><%=punch.clockIn%></td>
+              <td><%=punch.clockOut%></td>
+              <td><%=punch.earnedHours%></td>
+              <td><a class="btn btn-edit" href="/edit/<%=punch._id%>">Edit</a></td>
+              <td><form action='/delete/<%=punch._id%>?_method=DELETE' method='POST'><button class="btn btn-delete">Delete</button></form></td>
+            </tr>
+            <% } %>
+          <%})%>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
 </main>
 
 
@@ -79,91 +159,9 @@
 
 
 <!-- change display settings -->
-<table>
-  <thead>
-    <tr>
-      <th colspan='4' id='Active jobs that are not yet punched out'>Active Jobs</th>
-    </tr>
-    <tr>
-      <th scope="col" id='Client Information'>Client</th>
-      <th scope="col" id='Job Information'>Job</th>
-      <th scope="col" id='Time clocked in'>Time In</th>
-      <th scope="col" id='Punch Out Button'>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% shiftArr.forEach(punch => { %>
-      <% if(!punch.clockOut){ %>
-        <tr>
-          <td><%=punch.clientInfo%></td>
-          <td><%=punch.jobInfo%></td>
-          <td><%=punch.clockIn%></td>
-          <td>
-            <form action='/punch-out' method='POST'><button name='ourTime[Id]' value='<%=punch._id%>'>Punch Out</button></form>
-          </td>
-        </tr>
-      <% } %>
-    <%})%>
-  </tbody>
-</table>
-<hr>
-<table>
-  <thead>
-    <tr>
-      <th colspan='6' id='Earned Hours on jobs that have been punched out recently'>Entries from the past 7 days</th>
-    </tr>
-    <tr>
-      <th scope="col" id='Client Information'>Client</th>
-      <th scope="col" id='Job Information'>Job</th>
-      <th scope="col" id='Time clocked in'>Time In</th>
-      <th scope="col" id='Time clocked out'>Time Out</th>
-      <th scope="col" id='Hours Earned'>Hours</th>
-      <th scope="col" id='Edit Button'>Edit</th>
-      <th scope="col" id='Delete Button'>Delete</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% shiftArr.forEach(punch => { %>
-      <% if(punch.clockOut && punch.daySlot > (todaySend.day - 7)) { %>
-      <tr>
-        <td><%=punch.clientInfo%></td>
-        <td><%=punch.jobInfo%></td>
-        <td><%=punch.clockIn%></td>
-        <td><%=punch.clockOut%></td>
-        <td><%=punch.earnedHours%></td>
-        <td><a href="/<%=punch._id%>/edit">Edit</a></td>
-        <td><form action='/delete/<%=punch._id%>?_method=DELETE' method='POST'><button>Delete</button></form></td>
-      <% } %>
-    <%})%>
-  </tbody>
-</table>
+
+
 <!-- display week month or such determined by settings -->
-<h3>Daily hours this week</h3>
-<table>
-  <thead>
-    <tr>
-      <th scope="col" id='Hours for Sunday'>Sunday</th>
-      <th scope="col" id='Hours for Monday'>Monday</th>
-      <th scope="col" id='Hours for Tuesday'>Tuesday</th>
-      <th scope="col" id='Hours for Wednesday'>Wednesday</th>
-      <th scope="col" id='Hours for Thursday'>Thursday</th>
-      <th scope="col" id='Hours for Friday'>Friday</th>
-      <th scope="col" id='Hours for Saturday'>Saturday</th>
-      <th scope="col" id='Hours for the week'>Week</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><%= weekTotals[0].toFixed(2) %></td>
-      <td><%= weekTotals[1].toFixed(2) %></td>
-      <td><%= weekTotals[2].toFixed(2) %></td>
-      <td><%= weekTotals[3].toFixed(2) %></td>
-      <td><%= weekTotals[4].toFixed(2) %></td>
-      <td><%= weekTotals[5].toFixed(2) %></td>
-      <td><%= weekTotals[6].toFixed(2) %></td>
-      <td><%= ( weekTotals[6] + weekTotals[0] + weekTotals[1] + weekTotals[2] + weekTotals[3] + weekTotals[4] + weekTotals[5] ).toFixed(2) %></td>
-    </tr>
-  </tbody>
-</table>
+
 
 <%-include('partials/footer')%>

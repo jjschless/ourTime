@@ -1,0 +1,75 @@
+.form {
+    position: relative;
+    padding: 1rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+
+    &__icon-gauge {
+        position: absolute;
+        top: 0%;
+        left: 20%;
+        z-index: -1;
+        fill: var(--color-grey-light-2-alpha);
+        height: 15rem;
+        width: 15rem;
+
+    }
+
+    &__header {
+        margin: 1rem auto .5rem;
+        text-align: center;
+        font-size: 3rem;
+        font-weight: 200;
+        text-transform: uppercase;
+    }
+
+    &__group {
+        padding: 1rem;
+        width: 20rem;
+    }
+
+    &__label {
+        font-size: inherit;
+        font-family: inherit;
+        text-transform: uppercase;
+        letter-spacing: 1.1;
+
+    }
+
+    &__input-info,
+    &__input-time {
+        font-size: inherit;
+        font-family: inherit;
+        color: inherit;
+        padding: .75rem 1rem;
+        border-radius: 2px;
+        background-color: var(--color-grey-light-2-alpha);
+        border: none;   
+        border-bottom: 3px solid transparent;
+        display: block;
+        transition: all .3s;
+        width: 96%;
+        
+
+        &:focus {
+            outline: none;
+            box-shadow: 0 2rem 3rem rgba(black, .2);
+            border-bottom: 3px solid var(--color-primary);
+            background-color: var(--color-grey-light-1)
+        }
+
+        // &::placeholder {
+        // color: $color-grey-dark-2;
+        // }
+
+    }
+
+    &__input-time {
+        padding: .5rem 1rem;
+
+    }
+
+}

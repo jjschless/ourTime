@@ -1,0 +1,12 @@
+.editor {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    z-index: 15;
+    margin: 1rem;
+    border-radius: 2rem;
+    border: 1px solid var(--color-primary-light);
+    background-color: var(--color-grey-light-alpha);
+}
+
+    
